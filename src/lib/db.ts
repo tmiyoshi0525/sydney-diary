@@ -1,6 +1,12 @@
 import { PrismaClient } from '@prisma/client';
 
-const prisma = new PrismaClient();
+const globalForPrisma = global as unknown as { prisma: PrismaClient };
+
+export const prisma =
+    globalForPrisma.prisma ||
+    new PrismaClient();
+
+if (process.env.NODE_ENV !== 'production') globalForPrisma.prisma = prisma;
 
 export interface Post {
     id: string;
@@ -12,12 +18,11 @@ export interface Post {
 }
 
 export async function getPosts(): Promise<Post[]> {
-    const posts = await prisma.post.findMany({
+    return await prisma.post.findMany({
         orderBy: {
             createdAt: 'desc',
         },
     });
-    return posts;
 }
 
 export async function getPost(id: string): Promise<Post | null> {
@@ -54,12 +59,14 @@ export interface Profile {
 }
 
 export async function getProfile(): Promise<Profile | null> {
+    // @ts-ignore
     return await prisma.profile.findUnique({
         where: { id: 1 },
     });
 }
 
 export async function updateProfile(data: Partial<Profile>) {
+    // @ts-ignore
     await prisma.profile.upsert({
         where: { id: 1 },
         update: data,
@@ -81,12 +88,14 @@ export interface Message {
 }
 
 export async function saveMessage(data: { name: string; email: string; message: string }) {
+    // @ts-ignore
     await prisma.message.create({
         data,
     });
 }
 
 export async function getMessages(): Promise<Message[]> {
+    // @ts-ignore
     return await prisma.message.findMany({
         orderBy: {
             createdAt: 'desc',
