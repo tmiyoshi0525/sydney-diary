@@ -19,3 +19,10 @@ model Post {
   likes   Int      @default(0)
   createdAt DateTime @default(now())
 }
+
+model Profile {
+  id     Int    @id @default(1)
+  name   String
+  bio    String
+  avatar String @default("🇦🇺")
+}

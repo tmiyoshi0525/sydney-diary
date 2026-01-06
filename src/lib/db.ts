@@ -45,3 +45,29 @@ export async function updatePost(updatedPost: Post) {
         data: updatedPost,
     });
 }
+
+export interface Profile {
+    id: number;
+    name: string;
+    bio: string;
+    avatar: string;
+}
+
+export async function getProfile(): Promise<Profile | null> {
+    return await prisma.profile.findUnique({
+        where: { id: 1 },
+    });
+}
+
+export async function updateProfile(data: Partial<Profile>) {
+    await prisma.profile.upsert({
+        where: { id: 1 },
+        update: data,
+        create: {
+            id: 1,
+            name: data.name || 'シドニー在住',
+            bio: data.bio || '',
+            avatar: data.avatar || '🇦🇺',
+        },
+    });
+}

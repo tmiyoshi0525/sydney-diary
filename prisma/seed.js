@@ -35,12 +35,33 @@ const posts = [
 
 async function main() {
     console.log('Start seeding ...');
+
+    // Seed posts
     for (const post of posts) {
-        const p = await prisma.post.create({
-            data: post,
+        // Check if post with same title exists to avoid duplicates
+        const existingPost = await prisma.post.findFirst({
+            where: { title: post.title }
         });
-        console.log(`Created post with id: ${p.id}`);
+
+        if (!existingPost) {
+            await prisma.post.create({
+                data: post,
+            });
+        }
     }
+
+    // Seed profile
+    await prisma.profile.upsert({
+        where: { id: 1 },
+        update: {},
+        create: {
+            id: 1,
+            name: "シドニー在住の会社員",
+            bio: "2024年4月からシドニーでの生活をスタート。\n日々の発見や、変わりゆく街の景色を\n継続的に記録していきます。",
+            avatar: "🇦🇺",
+        },
+    });
+
     console.log('Seeding finished.');
 }
 

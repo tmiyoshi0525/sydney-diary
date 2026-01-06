@@ -1,7 +1,10 @@
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
+import { getProfile } from '@/lib/db';
 
-export default function Profile() {
+export default async function Profile() {
+    const profile = await getProfile();
+
     return (
         <>
             <Header />
@@ -18,12 +21,14 @@ export default function Profile() {
                     justifyContent: 'center',
                     fontSize: '3rem'
                 }}>
-                    🇦🇺
+                    {profile?.avatar || '🇦🇺'}
                 </div>
-                <p style={{ fontSize: '1.2rem', marginBottom: 'var(--spacing-xs)' }}>シドニー在住の会社員</p>
-                <p>2024年4月からシドニーでの生活をスタート。</p>
-                <p>日々の発見や、変わりゆく街の景色を</p>
-                <p>継続的に記録していきます。</p>
+                <p style={{ fontSize: '1.2rem', marginBottom: 'var(--spacing-xs)' }}>
+                    {profile?.name || 'シドニー在住の会社員'}
+                </p>
+                <div style={{ whiteSpace: 'pre-wrap', lineHeight: '1.6' }}>
+                    {profile?.bio || 'シドニーでの生活を記録していきます。'}
+                </div>
             </main>
             <Footer />
         </>
