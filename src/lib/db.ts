@@ -71,3 +71,25 @@ export async function updateProfile(data: Partial<Profile>) {
         },
     });
 }
+
+export interface Message {
+    id: string;
+    name: string;
+    email: string;
+    message: string;
+    createdAt: Date;
+}
+
+export async function saveMessage(data: { name: string; email: string; message: string }) {
+    await prisma.message.create({
+        data,
+    });
+}
+
+export async function getMessages(): Promise<Message[]> {
+    return await prisma.message.findMany({
+        orderBy: {
+            createdAt: 'desc',
+        },
+    });
+}
