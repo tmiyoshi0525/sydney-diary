@@ -1,5 +1,7 @@
 'use server';
 
+// Force redeploy to pick up new environment variables
+
 import { saveMessage } from '@/lib/db';
 import { revalidatePath } from 'next/cache';
 import { Resend } from 'resend';
