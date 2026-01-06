@@ -37,7 +37,7 @@ export default function Contact() {
         <>
             <Header />
             <main className="container fade-in" style={{ maxWidth: '600px', margin: 'var(--spacing-lg) auto' }}>
-                <h1 style={{ marginBottom: 'var(--spacing-md)', textAlign: 'center' }}>Contact (v2)</h1>
+                <h1 style={{ marginBottom: 'var(--spacing-md)', textAlign: 'center' }}>Contact</h1>
 
                 {sent ? (
                     <div style={{ textAlign: 'center', padding: '2rem', backgroundColor: 'var(--secondary)', borderRadius: '8px' }}>
