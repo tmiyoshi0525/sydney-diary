@@ -7,9 +7,6 @@ import { revalidatePath } from 'next/cache';
 import { Resend } from 'resend';
 
 export async function sendContactAction(formData: FormData) {
-    // Debug: Log environment variable names to see what's available
-    console.log('Available env keys:', Object.keys(process.env).filter(k => k.includes('RESEND') || k.includes('API')));
-
     const apiKey = process.env.RESEND_API_KEY;
     const resend = apiKey ? new Resend(apiKey) : null;
     const name = formData.get('name') as string;
@@ -34,14 +31,14 @@ export async function sendContactAction(formData: FormData) {
         dbSaved = true;
     } catch (error) {
         console.error('Database save failed:', error);
-        errorMessage = 'データベースへの保存に失敗しました: ' + (error instanceof Error ? error.message : String(error));
+        errorMessage = 'データベースへの保存に失敗しました。';
     }
 
     // 2. Email通知を送信 (Resend使用)
     if (dbSaved) {
         try {
             if (resend) {
-                const { data: resendData, error: resendError } = await resend.emails.send({
+                const { error: resendError } = await resend.emails.send({
                     from: 'onboarding@resend.dev',
                     to: 'tmiyoshi0525@gmail.com',
                     subject: '【Sydney Diary】お問い合わせが届きました',
@@ -50,22 +47,16 @@ export async function sendContactAction(formData: FormData) {
 
                 if (resendError) {
                     console.error('Resend error:', resendError);
-                    errorMessage = 'メール送信エラー: ' + resendError.message;
+                    errorMessage = 'メール送信サービスのエラー: ' + resendError.message;
                 } else {
-                    console.log('Email sent successfully:', resendData);
                     emailSent = true;
                 }
             } else {
-                const checkKeys = {
-                    RESEND_API_KEY: !!process.env.RESEND_API_KEY,
-                    DATABASE_URL: !!process.env.DATABASE_URL,
-                    NODE_ENV: process.env.NODE_ENV,
-                };
-                errorMessage = `RESEND_API_KEY が設定されていません。状態: ${JSON.stringify(checkKeys)}`;
+                errorMessage = 'RESEND_API_KEY がサーバーで検出されませんでした。Vercelの再デプロイが必要です。';
             }
         } catch (error) {
             console.error('Email notification failed:', error);
-            errorMessage = 'メール送信中に予期せぬエラーが発生しました。';
+            errorMessage = 'メール送信中にエラーが発生しました。';
         }
     }
 
