@@ -11,14 +11,18 @@ export default function Contact() {
 
     const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
-        console.log('Form submission started');
         setLoading(true);
         const formData = new FormData(e.currentTarget);
         try {
-            console.log('Calling sendContactAction...');
-            await sendContactAction(formData);
-            console.log('sendContactAction finished');
-            setSent(true);
+            const result = await sendContactAction(formData);
+            if (result.success) {
+                if (result.emailSent) {
+                    setSent(true);
+                } else {
+                    alert('メッセージは保存されましたが、メール通知の送信に失敗しました。管理画面（/admin）で確認してください。');
+                    setSent(true); // メッセージ自体は保存されたので完了画面へ
+                }
+            }
         } catch (error) {
             console.error('Submission error:', error);
             alert('送信に失敗しました。エラー: ' + (error instanceof Error ? error.message : String(error)));
