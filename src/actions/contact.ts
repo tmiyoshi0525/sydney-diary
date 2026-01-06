@@ -7,6 +7,9 @@ import { revalidatePath } from 'next/cache';
 import { Resend } from 'resend';
 
 export async function sendContactAction(formData: FormData) {
+    // Debug: Log environment variable names to see what's available
+    console.log('Available env keys:', Object.keys(process.env).filter(k => k.includes('RESEND') || k.includes('API')));
+
     const apiKey = process.env.RESEND_API_KEY;
     const resend = apiKey ? new Resend(apiKey) : null;
     const name = formData.get('name') as string;
