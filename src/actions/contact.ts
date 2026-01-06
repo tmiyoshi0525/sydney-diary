@@ -56,7 +56,8 @@ export async function sendContactAction(formData: FormData) {
                     emailSent = true;
                 }
             } else {
-                errorMessage = 'RESEND_API_KEY が設定されていません。';
+                const availableKeys = Object.keys(process.env).filter(k => k.includes('API') || k.includes('RESEND'));
+                errorMessage = `RESEND_API_KEY が設定されていません。検出された関連キー: ${availableKeys.join(', ') || 'なし'}`;
             }
         } catch (error) {
             console.error('Email notification failed:', error);
