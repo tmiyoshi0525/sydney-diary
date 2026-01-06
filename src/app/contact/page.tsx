@@ -19,13 +19,15 @@ export default function Contact() {
                 if (result.emailSent) {
                     setSent(true);
                 } else {
-                    alert('メッセージは保存されましたが、メール通知の送信に失敗しました。管理画面（/admin）で確認してください。');
-                    setSent(true); // メッセージ自体は保存されたので完了画面へ
+                    alert('メッセージは保存されましたが、メール通知に失敗しました。\n理由: ' + (result.errorMessage || '不明なエラー'));
+                    setSent(true);
                 }
+            } else {
+                alert('送信に失敗しました。\n理由: ' + (result.errorMessage || 'データベースへの保存に失敗しました'));
             }
         } catch (error) {
             console.error('Submission error:', error);
-            alert('送信に失敗しました。エラー: ' + (error instanceof Error ? error.message : String(error)));
+            alert('通信エラーが発生しました。インターネット接続を確認してください。');
         } finally {
             setLoading(false);
         }

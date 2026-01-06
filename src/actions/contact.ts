@@ -15,37 +15,50 @@ export async function sendContactAction(formData: FormData) {
         throw new Error('すべての項目を入力してください。');
     }
 
-    // 1. DBに保存
-    await saveMessage({
-        name,
-        email,
-        message,
-    });
-
     let emailSent = false;
-    // 2. Email通知を送信 (Resend使用)
-    try {
-        if (resend) {
-            const { data, error } = await resend.emails.send({
-                from: 'onboarding@resend.dev',
-                to: 'tmiyoshi0525@gmail.com',
-                subject: '【Sydney Diary】お問い合わせが届きました',
-                text: `以下の内容でお問い合わせが届きました。\n\nお名前: ${name}\nメールアドレス: ${email}\n\n内容:\n${message}`,
-            });
+    let dbSaved = false;
+    let errorMessage = '';
 
-            if (error) {
-                console.error('Resend error:', error);
-            } else {
-                console.log('Email sent successfully:', data);
-                emailSent = true;
-            }
-        } else {
-            console.error('RESEND_API_KEY is missing');
-        }
+    // 1. DBに保存
+    try {
+        await saveMessage({
+            name,
+            email,
+            message,
+        });
+        dbSaved = true;
     } catch (error) {
-        console.error('Email notification failed:', error);
+        console.error('Database save failed:', error);
+        errorMessage = 'データベースへの保存に失敗しました: ' + (error instanceof Error ? error.message : String(error));
+    }
+
+    // 2. Email通知を送信 (Resend使用)
+    if (dbSaved) {
+        try {
+            if (resend) {
+                const { data: resendData, error: resendError } = await resend.emails.send({
+                    from: 'onboarding@resend.dev',
+                    to: 'tmiyoshi0525@gmail.com',
+                    subject: '【Sydney Diary】お問い合わせが届きました',
+                    text: `以下の内容でお問い合わせが届きました。\n\nお名前: ${name}\nメールアドレス: ${email}\n\n内容:\n${message}`,
+                });
+
+                if (resendError) {
+                    console.error('Resend error:', resendError);
+                    errorMessage = 'メール送信エラー: ' + resendError.message;
+                } else {
+                    console.log('Email sent successfully:', resendData);
+                    emailSent = true;
+                }
+            } else {
+                errorMessage = 'RESEND_API_KEY が設定されていません。';
+            }
+        } catch (error) {
+            console.error('Email notification failed:', error);
+            errorMessage = 'メール送信中に予期せぬエラーが発生しました。';
+        }
     }
 
     revalidatePath('/admin');
-    return { success: true, emailSent };
+    return { success: dbSaved, emailSent, errorMessage };
 }
