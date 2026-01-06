@@ -1,6 +1,3 @@
-import Header from '@/components/Header';
-import Footer from '@/components/Footer';
-
 'use client';
 
 import Header from '@/components/Header';
@@ -14,13 +11,17 @@ export default function Contact() {
 
     const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
+        console.log('Form submission started');
         setLoading(true);
         const formData = new FormData(e.currentTarget);
         try {
+            console.log('Calling sendContactAction...');
             await sendContactAction(formData);
+            console.log('sendContactAction finished');
             setSent(true);
         } catch (error) {
-            alert('送信に失敗しました。もう一度お試しください。');
+            console.error('Submission error:', error);
+            alert('送信に失敗しました。エラー: ' + (error instanceof Error ? error.message : String(error)));
         } finally {
             setLoading(false);
         }
